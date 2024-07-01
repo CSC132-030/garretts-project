@@ -14,9 +14,10 @@ FPS = 60
 WINDOW = py.display.set_mode((WIDTH, HEIGHT))
 
 # Set window caption
-py.display.set_caption('Checkers v0.10')
+py.display.set_caption('Checkers v1.00')
 
 BOT = True
+DEPTH = 4
 
 
 # Takes position of mouse in window and returns the row and column for location of piece in board array
@@ -33,7 +34,7 @@ def main():
     game = Game(WINDOW)
 
     if BOT:
-        bot_player = Bot(BLACK, game, 2, True)
+        bot_player = Bot(BLACK, game, DEPTH, True)
 
     # Main game loop
     while run:

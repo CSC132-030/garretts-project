@@ -1,6 +1,4 @@
 import pygame as py
-
-from .board import Board
 from .constants import RED, BLACK, GREEN, SQUARE_SIZE
 from .board import Board
 

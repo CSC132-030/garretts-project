@@ -47,7 +47,6 @@ def try_move(piece, move, board, game, jumped):
 	board.move(piece, row=move[0], col=move[1])
 
 	if jumped:
-		#jumped_pcs = len(jumped)  # TODO: Add additional scoring for number of jumped pieces here?
 		board.remove(jumped)
 
 	return board
@@ -57,7 +56,7 @@ def get_all_moves(board, player_color, game):
 	possible_moves = []
 
 	board.get_all_pieces()
-	piece_dict = {RED: board.red_pieces, BLACK: board.blk_pieces}  # TODO: gotta be a better way to do this...
+	piece_dict = {RED: board.red_pieces, BLACK: board.blk_pieces}
 
 	for piece in piece_dict[player_color]:
 		valid_moves = board.get_valid_moves(piece)
