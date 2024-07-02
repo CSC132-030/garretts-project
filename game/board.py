@@ -34,7 +34,7 @@ class Board:
             for col in range(row % 2, COLS, 2):  # Draw cream square every other square and alternate between rows
                 py.draw.rect(surface, CREAM, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-    # Method drawing each colors pieces and storing their initial location in 2-dimensional array
+    # Method drawing each colors pieces and storing their initial location in 2-d array representing the board
     def create_board(self):
         for row in range(ROWS):
             self.board.append([])  # Initialize a separate list for each row (0 to 7)
@@ -52,8 +52,8 @@ class Board:
 
     # Method that draws the board according to board state
     def draw(self, surface):
-        self.draw_squares(surface)  # First draw the checkered board
-        # For each column in each row, draw the piece at that location if the square is not empty
+        self.draw_squares(surface)  # First draw the checkered board background
+        # For each column in each row, draw piece at that location if the square is not empty
         for row in range(ROWS):
             for col in range(COLS):
                 piece = self.board[row][col]
@@ -67,11 +67,12 @@ class Board:
     # Method handling movement of piece and updating board array
     def move(self, piece, row, col):
         # Swap empty value at target index of board array (row, col) that is being moved to with the piece's index
-        # so that the previously empty index now contains Piece object and previous Piece index now empty
+        # so that the previously empty index location now contains Piece object and Piece's previous index now empty
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
+        # Call piece function to update its row/col instance variables to new location
         piece.move(row, col)
 
-        # If piece has moved into row 7 or 0, make it a king and update colors king count
+        # If piece has moved into row 7 or 0 and not already a king, make it a king and update colors king count
         if row == ROWS - 1 or row == 0:
             if not piece.king:
                 piece.set_king()
@@ -92,12 +93,14 @@ class Board:
 
         # If color is red it moves from bottom to top, so check those diagonals.
         # If Piece is a king it can move backwards and must be checked regardless of color
+        # Then update moves dictionary with any valid moves
         if piece.color == RED or piece.king:
             moves.update(self._check_left(curr_row - 1, max(curr_row - 3, -1), -1, piece.color, left_col))
             moves.update(self._check_right(curr_row - 1, max(curr_row - 3, -1), -1, piece.color, right_col))
 
         # If color is black it moves from top to bottom, so check diagonals
         # If Piece is a king it can move backwards and must be checked regardless of color
+        # Then update moves dictionary with any valid moves
         if piece.color == BLACK or piece.king:
             moves.update(self._check_left(curr_row + 1, min(curr_row + 3, ROWS), 1, piece.color, left_col))
             moves.update(self._check_right(curr_row + 1, min(curr_row + 3, ROWS), 1, piece.color, right_col))
@@ -117,42 +120,43 @@ class Board:
             if col_to_left < 0:
                 break
 
-            # get piece at row and col to left (will be 0 if empty or Piece if occupied)
+            # get value in board array at row and col to left (will be 0 if empty or Piece if occupied)
             curr_square = self.board[row][col_to_left]
 
-            # If curr is an empty square (ie it is valid move):
+            # If curr square is empty square (ie it is valid move):
             if curr_square == 0:
-                # If jump was possibility but was invalid because same color as piece:
+                # If pieces have been jumped but the piece jumped is empty because jump was invalid:
                 if jumped_pieces and not piece_jumped:
                     break  # break loop and do not add to valid move to dictionary since jump was invalid
-                # if jump was possibility and valid, add the jump move to dictionary:
+                # otherwise, pieces were jumped and piece_jumped contains a valid piece which can be jumped
                 elif jumped_pieces:
                     moves[(row, col_to_left)] = piece_jumped + jumped_pieces
-                # If neither, since diagonal is empty (ie curr == 0), add valid non-jump move to dictionary:
+                # If neither, since diagonal square is empty, add valid non-jump move to dictionary:
                 else:
-                    # In this case last will be an empty list since no Piece was jumped/needs to be removed from board
+                    # In this case piece_jumped will be an empty list since no Piece was jumped/needs to be removed
                     moves[(row, col_to_left)] = piece_jumped
 
-                # If last var exists, check recursively for possible jump
+                # If a piece was jumped, check recursively if possible double jump is valid
                 if piece_jumped:
                     # get position of next row to be checked:
-                    if direction == -1:
+                    if direction == -1:  # ie moving bottom to top
                         curr_row = max(row-3, -1)
-                    else:
+                    else:  # ie moving top to bottom
                         curr_row = min(row+3, ROWS)
                     # check for double jump by checking for valid empty squares in left/right diagonal of new position
+                    # via a recursive call adding any potential valid moves to the moves dictionary
                     moves.update(self._check_left(row + direction, curr_row, direction, color, col_to_left - 1, jumped_pieces=piece_jumped))
                     moves.update(self._check_right(row + direction, curr_row, direction, color, col_to_left + 1, jumped_pieces=piece_jumped))
                 break
 
-            # Otherwise curr is a Piece, so check if its color is same as selected piece:
+            # Otherwise curr square is a Piece, so check if its color is same as selected piece being checked for moves:
             elif curr_square.color == color:
                 break  # if color is same break for loop, as no more valid moves on this side
             # If neither, piece @ curr square is opponents and could be jumped if it has empty diagonal (ie it is 0)
             else:
-                # store possible jump move and use to check for valid jump
+                # store possible jump move and use to check for valid jump (ie an empty diagonal to land in)
                 piece_jumped = [curr_square]
-            col_to_left -= 1  # decrement left var by 1 to get the next col to left to check next diagonal
+            col_to_left -= 1  # decrement col by 1 to get the next col to left to check next diagonal
 
         # return dictionary of valid moves to caller
         return moves
@@ -170,23 +174,23 @@ class Board:
             if col_to_right >= COLS:
                 break
 
-            # get piece at row=r and col=left (will be 0 if empty or Piece if occupied)
+            # get value in board array at row and col to right (will be 0 if empty or Piece if occupied)
             curr_square = self.board[row][col_to_right]
 
-            # If curr is an empty square (ie it is valid move):
+            # If curr square is empty (ie it is valid move):
             if curr_square == 0:
-                # If jump was possibility but was invalid because same color as piece:
+                # If pieces have been jumped but the piece jumped is empty because jump was invalid:
                 if jumped_pieces and not piece_jumped:
                     break  # break loop and do not add to valid move dictionary since no valid move this side
-                # if jump was possibility and was valid, add jump move to dictionary:
+                # otherwise, pieces were jumped and piece_jumped contains a valid piece which can be jumped
                 elif jumped_pieces:
-                    moves[(row, col_to_right)] = piece_jumped + jumped_pieces
+                    moves[(row, col_to_right)] = piece_jumped + jumped_pieces  # so add to dictionary
                 # If neither, since diagonal is empty (ie curr == 0), add valid non-jump move to dictionary:
                 else:
-                    # In this case last will be an empty list since no Piece was jumped/needs to be removed from board
+                    # In this case piece_jumped is empty list since no Piece was jumped/needs to be removed from board
                     moves[(row, col_to_right)] = piece_jumped
 
-                # If last var exists, check recursively for possible jump
+                # If a piece was jumped, check recursively if possible double jump is valid
                 if piece_jumped:
                     # get position of next row to be checked:
                     if direction == -1:
@@ -198,7 +202,7 @@ class Board:
                     moves.update(self._check_right(row + direction, curr_row, direction, color, col_to_right + 1, jumped_pieces=piece_jumped))
                 break
 
-            # Otherwise curr is a Piece, so check if its color is same as piece being moved:
+            # Otherwise curr square is Piece, so check if color is same as piece being moved:
             elif curr_square.color == color:
                 break  # if color is same break loop, as no more valid moves on this side
 
@@ -206,7 +210,7 @@ class Board:
             else:
                 # store possible jump move and use to check for valid jump
                 piece_jumped = [curr_square]
-            col_to_right += 1  # increment right var by 1 to get the next col to right to check next diagonal
+            col_to_right += 1  # increment col by 1 to get the next col to right to check next diagonal
 
         # return dictionary of valid moves to caller
         return moves
@@ -230,6 +234,7 @@ class Board:
             return RED
         return False
 
+    # Partial eval of board state based on location of all pieces on the board relative to their home location
     def get_pos_score(self):
         # Set count of row location for each color's pieces (used in evaluating board state) to 0
         self.red_mid = self.blk_mid = 0
@@ -262,50 +267,67 @@ class Board:
         blk_row_dict = {0: add_home, 1: add_home, 2: add_home, 3: add_mid, 4: add_mid, 5: add_far, 6: add_far,
                         7: add_far}
 
+        # For each piece of each color...
         for red_piece, blk_piece in zip(self.red_pieces, self.blk_pieces):
+            # if red piece is a king...
             if red_piece.king:
+                # add to amount to be subtracted from score if king is in bad location
                 if red_piece.row < 2 or red_piece.row > 5:
                     bad_king_red += 1
+                # otherwise, increment the king piece's pos score
                 else:
                     red_row_dict[red_piece.row](RED)
 
+            # now do the same for the black piece...
             if blk_piece.king:
                 if blk_piece.row < 2 or blk_piece.row > 5:
                     bad_king_blk += 1
                 else:
                     blk_row_dict[blk_piece.row](BLACK)
 
+            # If the red or black piece was not a king, increment pos score based on its pos
             if not red_piece.king:
                 red_row_dict[red_piece.row](RED)
             if not blk_piece.king:
                 blk_row_dict[blk_piece.row](BLACK)
 
+        # calc total pos score of each color based on board state
         red_pos_score = self.red_mid + 2*self.red_far - 2*bad_king_red
         blk_pos_score = self.blk_mid + 2*self.blk_far - 2*bad_king_blk
 
+        # return those scores to caller
         return red_pos_score, blk_pos_score
 
+    # Method to evaluate the board state of the current board
     def eval_board(self):
-        blk_win = red_win = 0
+        blk_win = red_win = 0  # set to 0 since no color has won
 
-        self.get_all_pieces()
-        red_pos_score, blk_pos_score = self.get_pos_score()
+        self.get_all_pieces()  # get all pieces on the curr board
+        red_pos_score, blk_pos_score = self.get_pos_score()  # get pos score based on curr board
 
+        # If black or red has captured more than 11 pieces, the game has been won
         if self.blk_caps > 11 or self.red_caps > 11:
+            # Set win var to 100 based on which color has captured all pieces
             if self.blk_caps > 11:
-                blk_win = 1
+                blk_win = 100
             elif self.red_caps > 11:
-                red_win = 1
+                red_win = 100
 
+        # Calc score of board state by summing the diff between black caps and red caps (multiplied by the weight),
+        # the diff of ea colors kings (times weight), diff of pos score, and if a board results in a win: add or
+        # subtract 10000 to score based on who would win that board in order to heavily incentivize winning the game
         score = 5*(self.blk_caps - self.red_caps) + 3*(self.blk_kings - self.red_kings) + (blk_pos_score - red_pos_score) + 1000*(blk_win - red_win)
         return score
 
+    # update a boards list of pieces on the board for each color
     def get_all_pieces(self):
         self.red_pieces = []
         self.blk_pieces = []
         for row in self.board:
+            # for each col in each row...
             for piece in row:
-                if piece != 0:
+                if piece != 0:  # if that col is not empty, it must be a piece...
+                    # so add that piece to the list of pieces based on the color of that piece
                     if piece.color == RED:
                         self.red_pieces.append(piece)
                     else:

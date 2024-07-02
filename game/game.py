@@ -82,7 +82,8 @@ class Game:
     def get_board(self):
         return self.board
 
+    # Update the board after bot has taken its turn
     def bot_end_turn(self, new_board):
-        self.board = new_board
-        self.update()
-        self.end_turn()
+        self.board = new_board  # set the board to board state post the bot making its move
+        self.update()  # update the game/board
+        self.end_turn()  # end/pass turn to other player

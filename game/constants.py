@@ -4,12 +4,12 @@ import pygame as py
 BOARD_WIDTH, HEIGHT = 600, 600  # Board size
 ROWS, COLS = 8, 8  # Checkers board is 8x8 grid
 SQUARE_SIZE = BOARD_WIDTH // COLS  # Size of individual cells on board
-WINDOW_WIDTH = BOARD_WIDTH + 400
+WINDOW_WIDTH = BOARD_WIDTH + 400  # Window width based on board width plus side bar padding
 
-WINDOW_SIZE = (WINDOW_WIDTH, HEIGHT)
-BOARD_POS = (WINDOW_WIDTH // 2 - BOARD_WIDTH // 2, 0)
+WINDOW_SIZE = (WINDOW_WIDTH, HEIGHT)  # tuple of width, height of window
+BOARD_POS = (WINDOW_WIDTH // 2 - BOARD_WIDTH // 2, 0)  # Pos to draw the board based on window width and board width
 
-X_OFFSET = (WINDOW_WIDTH - BOARD_WIDTH)//2
+X_OFFSET = (WINDOW_WIDTH - BOARD_WIDTH)//2  # offset in x direction of (0, 0) and pos where board starts
 
 ## PIECE DIMENSIONS ##
 PADDING = 10  # Padding between edge of squares and drawn piece
