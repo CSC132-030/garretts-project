@@ -21,6 +21,10 @@ class Game:
         self.board = Board()
         self.turn = RED
         self.valid_moves = {}
+        self.turncount = 0
+        self.boardlist = {}
+
+        self.boardlist[self.turncount] = self.board
 
     # method to reset the game by calling start()
     def reset(self):
@@ -60,10 +64,20 @@ class Game:
 
     def end_turn(self):
         self.valid_moves = {}
+        self.turncount += 1
+        self.boardlist[self.turncount] = self.board
         if self.turn == RED:
             self.turn = BLACK
         else:
             self.turn = RED
+
+    def reverse_turn(self):
+        if self.turncount > 1:
+            self.turncount -= 2
+            self.board = self.boardlist[self.turncount]
+        else:
+            self.reset()
+
 
     # Method to draw small circles once a piece is selected, indicating which squares can be moved to
     def draw_valid_moves(self, moves):
