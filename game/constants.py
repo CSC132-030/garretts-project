@@ -1,9 +1,15 @@
 import pygame as py
 
 ## BOARD DIMENSIONS ##
-WIDTH, HEIGHT = 600, 600  # Board size
+BOARD_WIDTH, HEIGHT = 600, 600  # Board size
 ROWS, COLS = 8, 8  # Checkers board is 8x8 grid
-SQUARE_SIZE = WIDTH//COLS  # Size of individual cells on board
+SQUARE_SIZE = BOARD_WIDTH // COLS  # Size of individual cells on board
+WINDOW_WIDTH = BOARD_WIDTH + 400
+
+WINDOW_SIZE = (WINDOW_WIDTH, HEIGHT)
+BOARD_POS = (WINDOW_WIDTH // 2 - BOARD_WIDTH // 2, 0)
+
+X_OFFSET = (WINDOW_WIDTH - BOARD_WIDTH)//2
 
 ## PIECE DIMENSIONS ##
 PADDING = 10  # Padding between edge of squares and drawn piece

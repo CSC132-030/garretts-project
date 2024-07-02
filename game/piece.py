@@ -29,17 +29,17 @@ class Piece:
         self.king = True
 
     # Method to draw piece and its border
-    def draw(self, window):
+    def draw(self, surface):
         radius = SQUARE_SIZE//2 - self.PAD  # Radius of piece is half of square minus padding
         if self.color == RED:  # If red piece, draw dark red 'border' first
-            py.draw.circle(window, REDB, (self.x, self.y), radius + self.BORDER)
+            py.draw.circle(surface, REDB, (self.x, self.y), radius + self.BORDER)
         else:  # Otherwise, the piece is black so draw its darker 'border' first
-            py.draw.circle(window, BLACKB, (self.x, self.y), radius + self.BORDER)
-        py.draw.circle(window, self.color, (self.x, self.y), radius)  # Then draw piece on top of border
+            py.draw.circle(surface, BLACKB, (self.x, self.y), radius + self.BORDER)
+        py.draw.circle(surface, self.color, (self.x, self.y), radius)  # Then draw piece on top of border
 
         # If piece is a king, draw crown on top of piece
         if self.king:
-            window.blit(CROWN, (self.x - CROWN.get_width()//2, self.y - CROWN.get_height()//2))
+            surface.blit(CROWN, (self.x - CROWN.get_width() // 2, self.y - CROWN.get_height() // 2))
 
     def move(self, row, col):
         self.row = row
