@@ -1,17 +1,19 @@
 import pygame as py
-from .constants import RED, BLACK, GREEN, SQUARE_SIZE
+from .constants import RED, BLACK, GREEN, SQUARE_SIZE, BOARD_POS
 from .board import Board
 
 
 class Game:
-    def __init__(self, window):
+    def __init__(self, board_surface):
         self._start()
-        self.window = window
+        self.surf = board_surface
+        self.pos = BOARD_POS
 
     def update(self):
-        self.board.draw(self.window)
+        self.board.draw(self.surf)
         self.draw_valid_moves(self.valid_moves)
         py.display.update()
+
 
     # private method called to start a game
     def _start(self):
@@ -69,7 +71,7 @@ class Game:
         for move in moves.keys():
             row, col = move  # store row and col of square it is valid to move to, then draw a circle there
             py.draw.circle(
-                self.window, GREEN,  # Draw green circles representing valid moves in the game window
+                self.surf, GREEN,  # Draw green circles representing valid moves on the game board surface
                 (col*SQUARE_SIZE + SQUARE_SIZE//2, row*SQUARE_SIZE + SQUARE_SIZE//2),  # x/y coords from col/row
                 SQUARE_SIZE//12)  # desired diameter of circle is 1/6 of square, so radius is 1/12
 

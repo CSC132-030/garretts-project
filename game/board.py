@@ -28,11 +28,11 @@ class Board:
         self.create_board()
 
     # Method drawing the checkered board the game will be played on
-    def draw_squares(self, window):
-        window.fill(WOOD)  # Color the entire board as wood
+    def draw_squares(self, surface):
+        surface.fill(WOOD)  # Color the entire board as wood
         for row in range(ROWS):
             for col in range(row % 2, COLS, 2):  # Draw cream square every other square and alternate between rows
-                py.draw.rect(window, CREAM, (row*SQUARE_SIZE, col*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                py.draw.rect(surface, CREAM, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
     # Method drawing each colors pieces and storing their initial location in 2-dimensional array
     def create_board(self):
@@ -51,14 +51,14 @@ class Board:
                     self.board[row].append(0)
 
     # Method that draws the board according to board state
-    def draw(self, window):
-        self.draw_squares(window)  # First draw the checkered board
+    def draw(self, surface):
+        self.draw_squares(surface)  # First draw the checkered board
         # For each column in each row, draw the piece at that location if the square is not empty
         for row in range(ROWS):
             for col in range(COLS):
                 piece = self.board[row][col]
                 if piece != 0:
-                    piece.draw(window)
+                    piece.draw(surface)
 
     # Method which takes row and column parameter and returns piece object
     def get_piece(self, row, col):
