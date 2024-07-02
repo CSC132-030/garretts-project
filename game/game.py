@@ -1,4 +1,5 @@
 import pygame as py
+from copy import deepcopy as dcopy
 from .constants import RED, BLACK, GREEN, SQUARE_SIZE, BOARD_POS
 from .board import Board
 
@@ -7,12 +8,12 @@ class Game:
     def __init__(self, board_surface):
         self._start()
         self.surf = board_surface
-        self.pos = BOARD_POS
+        #self.pos = BOARD_POS
 
     def update(self):
         self.board.draw(self.surf)
         self.draw_valid_moves(self.valid_moves)
-        py.display.update()
+        py.display.flip()
 
 
     # private method called to start a game
@@ -65,16 +66,19 @@ class Game:
     def end_turn(self):
         self.valid_moves = {}
         self.turncount += 1
-        self.boardlist[self.turncount] = self.board
+        board_copy = dcopy(self.board)
+        self.boardlist[self.turncount] = board_copy
         if self.turn == RED:
             self.turn = BLACK
         else:
             self.turn = RED
 
     def reverse_turn(self):
-        if self.turncount > 1:
+        if self.turncount > 2:
             self.turncount -= 2
             self.board = self.boardlist[self.turncount]
+            self.board.draw(self.surf)
+            py.display.flip()
         else:
             self.reset()
 

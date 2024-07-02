@@ -95,6 +95,7 @@ def main():
 
                 if REV_POS[0] <= tap_pos[0] <= REV_POS[0] + BTN_WDT and REV_POS[1] <= tap_pos[1] <= REV_POS[1] + BTN_HT:
                     game.reverse_turn()
+                    game.update()
                 if RESET_POS[0] <= tap_pos[0] <= RESET_POS[0] + BTN_WDT and RESET_POS[1] <= tap_pos[1] <= RESET_POS[1] + BTN_HT:
                     game.reset()
                 if QUIT_POS[0] <= tap_pos[0] <= QUIT_POS[0] + BTN_WDT and QUIT_POS[1] <= tap_pos[1] <= QUIT_POS[1] + BTN_HT:
