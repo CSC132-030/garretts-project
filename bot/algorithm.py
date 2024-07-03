@@ -4,6 +4,7 @@
 from copy import deepcopy as dcopy
 from game.constants import RED, BLACK
 
+
 # Find best move based on the curr board state, num of moves to look ahead (depth), game (in case later want to run
 # multiple game simultaneously, and bool whether to maximize score (True = Black since it wants to maximize the score
 # returned by eval function, False = Red since it wants to minimize score returned by eval function)
@@ -37,6 +38,7 @@ def find_move(curr_board, depth, curr_game, maximize):
 	# get all possible board states that would result from all possible moves red pieces could make based on the
 	# curr board state and game (same as black except best score is lowest rather than highest)
 	else:
+		#### EVERYTHING IS SAME EXCEPT NOW TRYING TO MINIMIZE THE SCORE AS THE RED SIDE ####
 		lo_score = float('inf')
 		best_board = None
 
@@ -52,19 +54,22 @@ def find_move(curr_board, depth, curr_game, maximize):
 		return lo_score, best_board
 
 
+# method simulating the board state after a given move on a copied board passed as arg so the move can be evaluated
 def try_move(piece, move, board, game, jumped):
+	# simulate the move passed as arg with the piece passed as arg on the board passed as arg
 	board.move(piece, row=move[0], col=move[1])
-
+	# if the move resulted in jumped pieces remove them from the board
 	if jumped:
 		board.remove(jumped)
-
+	# return the resulting board to caller to be evaluated
 	return board
 
 # function returning all possible moves for a given colors pieces based on a given board state
 def get_all_moves(board, player_color, game):
 	possible_moves = []
 
-	board.get_all_pieces()  # update the list of pieces for each color on the given board
+	board.get_all_pieces()  # update the list of pieces for each color for the given board object
+	# dict providing the list of pieces on the board based on the color passed as arg
 	piece_dict = {RED: board.red_pieces, BLACK: board.blk_pieces}
 
 	# for each piece in the list of pieces for given color...
@@ -73,11 +78,14 @@ def get_all_moves(board, player_color, game):
 
 		# for each move, simulate the board state after that move and evaluate the resulting board's score
 		for move, jumped in valid_moves.items():
-			board_copy = dcopy(board)  # copy of current board state to be altered to test potential moves/outcomes
+			board_copy = dcopy(board)  # create deep copy of board object that can be altered to test moves/outcomes
+			# get the piece object on the copied board based on current piece of current board
 			test_piece = board_copy.get_piece(piece.row, piece.col)
+			# store the resulting board state after the move has been made
 			new_board = try_move(test_piece, move, board_copy, game, jumped)
+			# add the board state to the list of possible moves
 			possible_moves.append(new_board)
-
+	# return the list of possible moves to caller
 	return possible_moves
 
 

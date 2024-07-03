@@ -2,7 +2,7 @@ import pygame as py
 from .constants import WOOD, CREAM, BLACK, RED, ROWS, COLS, SQUARE_SIZE
 from .piece import Piece
 
-
+# Board class used to represent the board the game is played on
 class Board:
 
     # Initialize the game board object and attributes
@@ -29,16 +29,16 @@ class Board:
 
     # Method drawing the checkered board the game will be played on
     def draw_squares(self, surface):
-        surface.fill(WOOD)  # Color the entire board as wood
+        surface.fill(WOOD)  # Color the entire board as wood color
         for row in range(ROWS):
-            for col in range(row % 2, COLS, 2):  # Draw cream square every other square and alternate between rows
+            for col in range(row % 2, COLS, 2):  # Draw cream square every other square, alternating between rows
                 py.draw.rect(surface, CREAM, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-    # Method drawing each colors pieces and storing their initial location in 2-d array representing the board
+    # Method creating each colors pieces and storing them in 2-d array tracking the board state
     def create_board(self):
         for row in range(ROWS):
             self.board.append([])  # Initialize a separate list for each row (0 to 7)
-            for col in range(COLS):
+            for col in range(COLS):  # for each row's list, add the appropriate pieces for each col (0 to 7)
                 # Stagger the pieces such that they are only located every other square
                 if col % 2 == ((row+1) % 2):
                     if row < 3:  # Use black pieces for rows 0, 1, 2
@@ -50,13 +50,14 @@ class Board:
                 else:  # Add 0 representing empty square when a row's column is empty
                     self.board[row].append(0)
 
-    # Method that draws the board according to board state
+    # Method that draws the board according to board state stored in 2d array
     def draw(self, surface):
-        self.draw_squares(surface)  # First draw the checkered board background
-        # For each column in each row, draw piece at that location if the square is not empty
+        self.draw_squares(surface)  # First draw the checkered board background by calling function
+        # For each column in each row
         for row in range(ROWS):
             for col in range(COLS):
-                piece = self.board[row][col]
+                piece = self.board[row][col]  # store the value at curr row/col
+                # if piece = 0, square @ row/col is empty. if != 0 then a piece is there so call the piece draw method
                 if piece != 0:
                     piece.draw(surface)
 
@@ -72,7 +73,7 @@ class Board:
         # Call piece function to update its row/col instance variables to new location
         piece.move(row, col)
 
-        # If piece has moved into row 7 or 0 and not already a king, make it a king and update colors king count
+        # If piece has moved into row 7 or 0 and not already a king, make it a king and update colors king counter
         if row == ROWS - 1 or row == 0:
             if not piece.king:
                 piece.set_king()
@@ -215,18 +216,19 @@ class Board:
         # return dictionary of valid moves to caller
         return moves
 
-    # Method removing a piece from board after it has been jumped
+    # Method getting list of pieces as arg then removing those pieces from 2d array tracking board state
     def remove(self, pieces):
-        # For each piece in list of removed pieces, remove piece from board by setting val to 0
+        # For each piece in list of pieces, remove piece from board array by setting val to 0 @ that pieces index
         for piece in pieces:
             self.board[piece.row][piece.col] = 0
+            # update the count of captured pieces according the color of the current piece being removed
             if piece != 0:
                 if piece.color == RED:
                     self.blk_caps += 1
                 else:
                     self.red_caps += 1
 
-    # Method which returns winning color if a team has no pieces, otherwise returns false if there is no winner
+    # Method which returns winning color if a team has no pieces, otherwise returns false if no winner yet
     def win_game(self):
         if self.blk_caps > 11:
             return BLACK
@@ -240,6 +242,7 @@ class Board:
         self.red_mid = self.blk_mid = 0
         self.red_far = self.blk_far = 0
 
+        # set penalty for having a king hanging out on far side of board to 0
         bad_king_red = bad_king_blk = 0
 
         # Methods updating count tracking how many pieces each color has in their respective row areas
@@ -271,7 +274,7 @@ class Board:
         for red_piece, blk_piece in zip(self.red_pieces, self.blk_pieces):
             # if red piece is a king...
             if red_piece.king:
-                # add to amount to be subtracted from score if king is in bad location
+                # add to amount subtracted from score to discourage king just moving back and forth at end of board
                 if red_piece.row < 2 or red_piece.row > 5:
                     bad_king_red += 1
                 # otherwise, increment the king piece's pos score

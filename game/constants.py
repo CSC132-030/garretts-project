@@ -4,9 +4,11 @@ import pygame as py
 BOARD_WIDTH, HEIGHT = 600, 600  # Board size
 ROWS, COLS = 8, 8  # Checkers board is 8x8 grid
 SQUARE_SIZE = BOARD_WIDTH // COLS  # Size of individual cells on board
-WINDOW_WIDTH = BOARD_WIDTH + 400  # Window width based on board width plus side bar padding
 
+## WINDOW DIMENSIONS ##
+WINDOW_WIDTH = BOARD_WIDTH + 400  # Window width based on board width plus side bar padding
 WINDOW_SIZE = (WINDOW_WIDTH, HEIGHT)  # tuple of width, height of window
+
 BOARD_POS = (WINDOW_WIDTH // 2 - BOARD_WIDTH // 2, 0)  # Pos to draw the board based on window width and board width
 
 X_OFFSET = (WINDOW_WIDTH - BOARD_WIDTH)//2  # offset in x direction of (0, 0) and pos where board starts
@@ -27,4 +29,6 @@ GREEN = (82, 196, 16)  # Color indicating valid spaces a piece can be moved
 piece_diameter = (SQUARE_SIZE//2 - PADDING)*2  # Diameter of one game piece
 x_scale = piece_diameter * 2/3  # Set width of crown to 2/3 the diameter of a piece
 y_scale = x_scale*(256/445)  # Calculate height while maintaining images original aspect ratio
+
+# crown image scaled to fit on a piece to indicate it is a king
 CROWN = py.transform.scale(py.image.load('assets/crown.png'), (x_scale, y_scale))
