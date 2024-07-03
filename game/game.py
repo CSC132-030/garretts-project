@@ -1,6 +1,6 @@
 import pygame as py
 from copy import deepcopy as dcopy
-from .constants import RED, BLACK, GREEN, SQUARE_SIZE, BOARD_POS
+from .constants import RED, BLACK, GREEN, SQUARE_SIZE
 from .board import Board
 
 
@@ -8,7 +8,6 @@ class Game:
     def __init__(self, board_surface):
         self._start()
         self.surf = board_surface
-        #self.pos = BOARD_POS
 
     def update(self):
         self.board.draw(self.surf)

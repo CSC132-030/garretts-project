@@ -7,6 +7,7 @@ from game.constants import BOARD_WIDTH, HEIGHT, RED, BLACK, SQUARE_SIZE, WINDOW_
 from game.game import Game
 from game.bot import Bot
 
+# Initialize fonts in pygame
 py.font.init()
 
 # Frame rate constant for clock.tick()
@@ -21,33 +22,16 @@ BOARD_SURF = py.Surface((BOARD_WIDTH, HEIGHT))
 # Button constants for their position/size/font/etc.
 BTN_WDT = 3 * (X_OFFSET // 4)
 BTN_HT = BTN_WDT // 3
-
 R_BTN_X = WINDOW_SIZE[0] - X_OFFSET // 2 - BTN_WDT // 2
 BTN_Y = WINDOW_SIZE[1] // 8
 BTN_SZE = (BTN_WDT, BTN_HT)
-
-REV_POS = (R_BTN_X, BTN_Y)
-RESET_POS = (R_BTN_X, WINDOW_SIZE[1] // 2 - BTN_SZE[1] // 2)
-QUIT_POS = (R_BTN_X, WINDOW_SIZE[1] - BTN_Y - BTN_SZE[1])
-
 BTN_FONT = py.font.Font(None, 22)
 BTN_FONT.underline = True
-
-rev_surf = py.Surface(BTN_SZE)
-reset_surf = py.Surface(BTN_SZE)
-quit_surf = py.Surface(BTN_SZE)
-
-rev_txt = BTN_FONT.render('Undo Last Move', True, (255, 255, 255))
-reset_txt = BTN_FONT.render('Reset Game', True, (255, 255, 255))
-quit_txt = BTN_FONT.render('Quit', True, (255, 255, 255))
-
-rev_txt_rect = rev_txt.get_rect(center=(rev_surf.get_width() // 2, rev_surf.get_height() // 2))
-reset_txt_rect = reset_txt.get_rect(center=(reset_surf.get_width() // 2, reset_surf.get_height() // 2))
-quit_txt_rect = quit_txt.get_rect(center=(quit_surf.get_width() // 2, quit_surf.get_height() // 2))
 
 # Set window caption
 py.display.set_caption("Checkers v1.05")
 
+# Bot constants for color the bot plays and recursion depth/difficulty
 BOT_COLOR = BLACK
 DEPTH = 3
 
@@ -61,12 +45,39 @@ def get_row_col(pos):
 	return row, col
 
 
+# Main game loop, takes boolean arg 'bot' from caller specifying whether the game will be 1 player or 2
 def main(bot):
 	WINDOW.fill(BLACKB)
 	bot = bot
 	run = True
 	clock = py.time.Clock()
 	game = Game(BOARD_SURF)
+
+	# Set x,y tuples for position of buttons based on window size
+	rev_pos = (R_BTN_X, BTN_Y)
+	reset_pos = (R_BTN_X, WINDOW_SIZE[1] // 2 - BTN_SZE[1] // 2)
+	quit_pos = (R_BTN_X, WINDOW_SIZE[1] - BTN_Y - BTN_SZE[1])
+	menu_pos = (X_OFFSET // 2 - BTN_SZE[0] // 2, WINDOW_SIZE[1] - WINDOW_SIZE[1] // 4 - BTN_SZE[1] // 2)
+	turn_pos = (X_OFFSET // 2 - BTN_SZE[0] // 2, WINDOW_SIZE[1] // 4 - BTN_SZE[1] // 2)
+
+	# Create surfaces for the buttons
+	rev_surf = py.Surface(BTN_SZE)
+	reset_surf = py.Surface(BTN_SZE)
+	quit_surf = py.Surface(BTN_SZE)
+	menu_surf = py.Surface(BTN_SZE)
+
+	# Create text to overlay onto the buttons
+	rev_txt = BTN_FONT.render('Undo Last Move', True, (255, 255, 255))
+	reset_txt = BTN_FONT.render('Reset Game', True, (255, 255, 255))
+	quit_txt = BTN_FONT.render('Quit', True, (255, 255, 255))
+	menu_txt = BTN_FONT.render('Main Menu', True, (255, 255, 255))
+
+	# Create rectangles for the text to be rendered onto
+	rev_txt_rect = rev_txt.get_rect(center=(rev_surf.get_width() // 2, rev_surf.get_height() // 2))
+	reset_txt_rect = reset_txt.get_rect(center=(reset_surf.get_width() // 2, reset_surf.get_height() // 2))
+	quit_txt_rect = quit_txt.get_rect(center=(quit_surf.get_width() // 2, quit_surf.get_height() // 2))
+	menu_txt_rect = menu_txt.get_rect(center=(menu_surf.get_width() // 2, menu_surf.get_height() // 2))
+	menu_btn_rect = py.Rect(menu_pos, BTN_SZE)
 
 	if bot:
 		bot_player = Bot(BOT_COLOR, game, DEPTH, True)
@@ -103,34 +114,41 @@ def main(bot):
 					if not bot:
 						game.select(row, col)
 
-				if REV_POS[0] <= tap_pos[0] <= REV_POS[0] + BTN_WDT and REV_POS[1] <= tap_pos[1] <= REV_POS[1] + BTN_HT:
-					rev_btn_clk = py.draw.rect(WINDOW, REDB, (REV_POS, BTN_SZE))
+				if rev_pos[0] <= tap_pos[0] <= rev_pos[0] + BTN_WDT and rev_pos[1] <= tap_pos[1] <= rev_pos[1] + BTN_HT:
+					rev_btn_clk = py.draw.rect(WINDOW, REDB, (rev_pos, BTN_SZE))
 					py.display.update(rev_btn_clk)
 					game.reverse_turn()
 					game.update()
-				if RESET_POS[0] <= tap_pos[0] <= RESET_POS[0] + BTN_WDT and RESET_POS[1] <= tap_pos[1] <= RESET_POS[
+				if reset_pos[0] <= tap_pos[0] <= reset_pos[0] + BTN_WDT and reset_pos[1] <= tap_pos[1] <= reset_pos[
 					1] + BTN_HT:
-					reset_btn_clk = py.draw.rect(WINDOW, REDB, (RESET_POS, BTN_SZE))
+					reset_btn_clk = py.draw.rect(WINDOW, REDB, (reset_pos, BTN_SZE))
 					py.display.update(reset_btn_clk)
 					game.reset()
-				if QUIT_POS[0] <= tap_pos[0] <= QUIT_POS[0] + BTN_WDT and QUIT_POS[1] <= tap_pos[1] <= QUIT_POS[
+				if quit_pos[0] <= tap_pos[0] <= quit_pos[0] + BTN_WDT and quit_pos[1] <= tap_pos[1] <= quit_pos[
 					1] + BTN_HT:
-					quit_btn_clk = py.draw.rect(WINDOW, REDB, (QUIT_POS, BTN_SZE))
+					quit_btn_clk = py.draw.rect(WINDOW, REDB, (quit_pos, BTN_SZE))
 					py.display.update(quit_btn_clk)
 					run = False
+				if menu_btn_rect.collidepoint(event.pos):
+					menu_btn_clk = py.draw.rect(WINDOW, REDB, (menu_pos, BTN_SZE))
+					py.display.update(menu_btn_clk)
+					welcome()
 				py.time.delay(75)
 
 		py.draw.rect(rev_surf, RED, ((0, 0), BTN_SZE))
 		py.draw.rect(reset_surf, RED, ((0, 0), BTN_SZE))
 		py.draw.rect(quit_surf, RED, ((0, 0), BTN_SZE))
+		py.draw.rect(menu_surf, RED, ((0, 0), BTN_SZE))
 
 		rev_surf.blit(rev_txt, rev_txt_rect)
 		reset_surf.blit(reset_txt, reset_txt_rect)
 		quit_surf.blit(quit_txt, quit_txt_rect)
+		menu_surf.blit(menu_txt, menu_txt_rect)
 
-		WINDOW.blit(rev_surf, REV_POS)
-		WINDOW.blit(reset_surf, RESET_POS)
-		WINDOW.blit(quit_surf, QUIT_POS)
+		WINDOW.blit(rev_surf, rev_pos)
+		WINDOW.blit(reset_surf, reset_pos)
+		WINDOW.blit(quit_surf, quit_pos)
+		WINDOW.blit(menu_surf, menu_pos)
 
 		game.update()
 
@@ -140,7 +158,7 @@ def main(bot):
 	py.quit()
 	sys.exit()
 
-
+# Main menu/welcome screen. Allows selection of 1 or 2 players and calls main() with bot arg based on button clicked
 def welcome():
 	WINDOW.fill(BLACKB)
 	run = True
@@ -159,14 +177,17 @@ def welcome():
 	banner_surf = py.Surface(banner_sze)
 	sngl_surf = py.Surface(wbtn_sze)
 	two_surf = py.Surface(wbtn_sze)
+	quit_surf = py.Surface(BTN_SZE)
 
 	banner_txt = banner_font.render('Checkers Game For Cool People', True, REDB)
 	sngl_txt = wbtn_font.render('1 Player', True, (255, 255, 255))
 	two_txt = wbtn_font.render('2 Player', True, (255, 255, 255))
+	quit_txt = BTN_FONT.render('Quit', True, (255, 255, 255))
 
 	banner_txt_rect = banner_txt.get_rect(center=(banner_surf.get_width() // 2, banner_surf.get_height() // 2))
 	sngl_txt_rect = sngl_txt.get_rect(center=(sngl_surf.get_width() // 2, sngl_surf.get_height() // 2))
 	two_txt_rect = two_txt.get_rect(center=(two_surf.get_width() // 2, two_surf.get_height() // 2))
+	quit_txt_rect = quit_txt.get_rect(center=(quit_surf.get_width() // 2, quit_surf.get_height() // 2))
 
 	sngl_pos = (WINDOW_SIZE[0] // 2 - sngl_surf.get_width() // 2, WINDOW_SIZE[1] // 2 - ypad)
 	two_pos = (WINDOW_SIZE[0] // 2 - two_surf.get_width() // 2, sngl_pos[1] + sngl_surf.get_height() + ypad)
@@ -218,6 +239,7 @@ def welcome():
 	sys.exit()
 
 
+# Win screen called by main() once game has been won, buttons allow user to return to main menu or quit
 def game_won(color_won):
 	if color_won == RED:
 		winner = "RED"
@@ -292,4 +314,4 @@ def game_won(color_won):
 	sys.exit()
 
 
-welcome()
+welcome()  # Calls welcome screen when file is ran
