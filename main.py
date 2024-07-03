@@ -3,11 +3,11 @@ import sys
 import pygame as py
 import pygame.mouse
 
-from game.constants import BOARD_WIDTH, HEIGHT, RED, BLACK, SQUARE_SIZE, WINDOW_SIZE, BOARD_POS, X_OFFSET, REDB
+from game.constants import BOARD_WIDTH, HEIGHT, RED, BLACK, SQUARE_SIZE, WINDOW_SIZE, BOARD_POS, X_OFFSET, REDB, BLACKB
 from game.game import Game
 from game.bot import Bot
 
-py.init()
+py.font.init()
 
 # Frame rate constant for clock.tick()
 FPS = 60
@@ -30,7 +30,6 @@ REV_POS = (R_BTN_X, BTN_Y)
 RESET_POS = (R_BTN_X, WINDOW_SIZE[1]//2 - BTN_SZE[1]//2)
 QUIT_POS = (R_BTN_X, WINDOW_SIZE[1] - BTN_Y - BTN_SZE[1])
 
-#BTN_SURF = py.Surface(BTN_SZE)
 BTN_FONT = py.font.Font(None, 22)
 BTN_FONT.underline = True
 
@@ -46,14 +45,13 @@ rev_txt_rect = rev_txt.get_rect(center=(rev_surf.get_width() // 2, rev_surf.get_
 reset_txt_rect = reset_txt.get_rect(center=(reset_surf.get_width() // 2, reset_surf.get_height() // 2))
 quit_txt_rect = quit_txt.get_rect(center=(quit_surf.get_width() // 2, quit_surf.get_height() // 2))
 
-rev_btn_rect = py.Rect((REV_POS, BTN_SZE))
+"""rev_btn_rect = py.Rect((REV_POS, BTN_SZE))
 reset_btn_rect = py.Rect((RESET_POS, BTN_SZE))
-quit_btn_rect = py.Rect((QUIT_POS, BTN_SZE))
+quit_btn_rect = py.Rect((QUIT_POS, BTN_SZE))"""
 
 # Set window caption
 py.display.set_caption("Checkers v1.05")
 
-BOT = True
 BOT_COLOR = BLACK
 DEPTH = 3
 
@@ -67,19 +65,21 @@ def get_row_col(pos):
     return row, col
 
 
-def main():
+def main(bot):
+    WINDOW.fill(BLACKB)  # TODO: REMOVE IF BREAKS THINGS
+    bot = bot
     run = True
     clock = py.time.Clock()
     game = Game(BOARD_SURF)
 
-    if BOT:
+    if bot:
         bot_player = Bot(BOT_COLOR, game, DEPTH, True)
 
     # Main game loop
     while run:
         clock.tick(FPS)
 
-        if BOT and game.turn == BLACK:
+        if bot and game.turn == BLACK:
             game.update()
             bot_player.take_turn()
 
@@ -106,11 +106,11 @@ def main():
                 if BOARD_POS[0] <= tap_pos[0] <= BOARD_POS[0] + BOARD_WIDTH:
                     row, col = get_row_col(tap_pos)
 
-                    if BOT:
+                    if bot:
                         if game.turn != BOT_COLOR:
                             game.select(row, col)
 
-                    if not BOT:
+                    if not bot:
                         game.select(row, col)
 
                 if REV_POS[0] <= tap_pos[0] <= REV_POS[0] + BTN_WDT and REV_POS[1] <= tap_pos[1] <= REV_POS[1] + BTN_HT:
@@ -149,11 +149,82 @@ def main():
     sys.exit()
 
 
-def intro():
-    pass
+def welcome():
+    WINDOW.fill(BLACKB)
+    run = True
+    clock = py.time.Clock()
+
+    ypad = WINDOW_SIZE[1]//16
+    wbtn_sze = (2*BTN_SZE[0], BTN_SZE[1])
+    banner_sze = (WINDOW_SIZE[0] - WINDOW_SIZE[0]//14, (WINDOW_SIZE[1] - 2*(WINDOW_SIZE[1]//3)))
+
+    banner_font = py.font.Font(None, 84)
+    banner_font.italic = True
+
+    banner_surf = py.Surface(banner_sze)
+    sngl_surf = py.Surface(wbtn_sze)
+    two_surf = py.Surface(wbtn_sze)
+
+    banner_txt = banner_font.render('Checkers Game For Cool People', True, REDB)
+    sngl_txt = BTN_FONT.render('1 Player', True, (255, 255, 255))
+    two_txt = BTN_FONT.render('2 Player', True, (255, 255, 255))
+
+    banner_txt_rect = banner_txt.get_rect(center=(banner_surf.get_width() // 2, banner_surf.get_height() // 2))
+    sngl_txt_rect = sngl_txt.get_rect(center=(sngl_surf.get_width() // 2, sngl_surf.get_height() // 2))
+    two_txt_rect = two_txt.get_rect(center=(two_surf.get_width() // 2, two_surf.get_height() // 2))
+
+    sngl_pos = (WINDOW_SIZE[0]//2 - sngl_surf.get_width()//2, WINDOW_SIZE[1]//2 - ypad)
+    two_pos = (WINDOW_SIZE[0]//2 - two_surf.get_width()//2, sngl_pos[1] + sngl_surf.get_height() + ypad)
+    wquit_pos = (WINDOW_SIZE[0]//2 - quit_surf.get_width()//2, two_pos[1] + two_surf.get_height() + ypad)
+
+    sngl_btn_rect = py.Rect((sngl_pos, wbtn_sze))
+    two_btn_rect = py.Rect((two_pos, wbtn_sze))
+    wquit_btn_rect = py.Rect((wquit_pos, BTN_SZE))
+
+    while run:
+        clock.tick(FPS)
+
+        for event in py.event.get():
+            if event.type == py.QUIT:
+                run = False
+            if event.type == py.MOUSEBUTTONDOWN:
+                if sngl_btn_rect.collidepoint(event.pos):
+                    sngl_btn_clk = py.draw.rect(WINDOW, REDB, (sngl_pos, wbtn_sze))
+                    py.display.update(sngl_btn_clk)
+                    main(True)
+                if two_btn_rect.collidepoint(event.pos):
+                    two_btn_clk = py.draw.rect(WINDOW, REDB, (two_pos, wbtn_sze))
+                    py.display.update(two_btn_clk)
+                    main(False)
+                if wquit_btn_rect.collidepoint(event.pos):
+                    wquit_btn_clk = py.draw.rect(WINDOW, REDB, (wquit_pos, BTN_SZE))
+                    py.display.update(wquit_btn_clk)
+                    run = False
+                py.time.delay(75)
+
+        py.draw.rect(sngl_surf, RED, ((0, 0), wbtn_sze))
+        py.draw.rect(two_surf, RED, ((0, 0), wbtn_sze))
+        py.draw.rect(quit_surf, RED, ((0, 0), BTN_SZE))
+
+        banner_surf.blit(banner_txt, banner_txt_rect)
+        sngl_surf.blit(sngl_txt, sngl_txt_rect)
+        two_surf.blit(two_txt, two_txt_rect)
+        quit_surf.blit(quit_txt, quit_txt_rect)
+
+        WINDOW.blit(banner_surf, ((WINDOW_SIZE[0] - banner_surf.get_width())//2,
+                                  WINDOW_SIZE[1]//4 - banner_surf.get_height()//2))
+        WINDOW.blit(sngl_surf, sngl_pos)
+        WINDOW.blit(two_surf, two_pos)
+        WINDOW.blit(quit_surf, wquit_pos)
+
+        py.display.update()
+
+    py.quit()
+    sys.exit()
 
 
 def game_won():
     pass
 
-main()
+
+welcome()
