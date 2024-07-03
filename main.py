@@ -3,7 +3,8 @@ import sys
 import pygame as py
 import pygame.mouse
 
-from game.constants import BOARD_WIDTH, HEIGHT, RED, BLACK, SQUARE_SIZE, WINDOW_SIZE, BOARD_POS, X_OFFSET, REDB, BLACKB
+from game.constants import (BOARD_WIDTH, HEIGHT, RED, BLACK, SQUARE_SIZE, WINDOW_SIZE,
+							BOARD_POS, X_OFFSET, REDB, BLACKB, WOOD, CREAM)
 from game.game import Game
 from game.bot import Bot
 
@@ -29,7 +30,7 @@ BTN_FONT = py.font.Font(None, 22)
 BTN_FONT.underline = True
 
 # Set window caption
-py.display.set_caption("Checkers v1.05")
+py.display.set_caption("Checkers v1.10")
 
 # Bot constants for color the bot plays and recursion depth/difficulty
 BOT_COLOR = BLACK
@@ -53,30 +54,49 @@ def main(bot):
 	clock = py.time.Clock()
 	game = Game(BOARD_SURF)
 
-	# Set x,y tuples for position of buttons based on window size
+	disp_sze = (BTN_SZE[0], 3*BTN_SZE[1])
+	disp_font = py.font.Font(None, 38)
+	team_font = py.font.Font(None, 28)
+	scr_font = py.font.Font(None, 38)
+
+	disp_font.bold = True
+	disp_font.italic = True
+	team_font.underline = True
+	scr_font.bold = True
+
+	# Set x,y tuples for position of buttons/display based on window size
 	rev_pos = (R_BTN_X, BTN_Y)
 	reset_pos = (R_BTN_X, WINDOW_SIZE[1] // 2 - BTN_SZE[1] // 2)
 	quit_pos = (R_BTN_X, WINDOW_SIZE[1] - BTN_Y - BTN_SZE[1])
-	menu_pos = (X_OFFSET // 2 - BTN_SZE[0] // 2, WINDOW_SIZE[1] - WINDOW_SIZE[1] // 4 - BTN_SZE[1] // 2)
-	turn_pos = (X_OFFSET // 2 - BTN_SZE[0] // 2, WINDOW_SIZE[1] // 4 - BTN_SZE[1] // 2)
+	menu_pos = (X_OFFSET // 2 - BTN_SZE[0] // 2, WINDOW_SIZE[1] - WINDOW_SIZE[1] // 4 - BTN_SZE[1])
+	caps_pos = (X_OFFSET // 2 - disp_sze[0] // 2, WINDOW_SIZE[1] // 4 - disp_sze[1] // 6)
 
-	# Create surfaces for the buttons
+	# Create surfaces for the buttons/display
 	rev_surf = py.Surface(BTN_SZE)
 	reset_surf = py.Surface(BTN_SZE)
 	quit_surf = py.Surface(BTN_SZE)
 	menu_surf = py.Surface(BTN_SZE)
+	caps_surf = py.Surface(disp_sze)
 
-	# Create text to overlay onto the buttons
+	# Create text to overlay onto the buttons/display
 	rev_txt = BTN_FONT.render('Undo Last Move', True, (255, 255, 255))
 	reset_txt = BTN_FONT.render('Reset Game', True, (255, 255, 255))
 	quit_txt = BTN_FONT.render('Quit', True, (255, 255, 255))
 	menu_txt = BTN_FONT.render('Main Menu', True, (255, 255, 255))
+	caps_txt_top = disp_font.render("Captures", True, WOOD)
+	caps_txt_rteam = team_font.render("Red:", True, RED)
+	caps_txt_bteam = team_font.render("Black:", True, BLACK)
 
 	# Create rectangles for the text to be rendered onto
 	rev_txt_rect = rev_txt.get_rect(center=(rev_surf.get_width() // 2, rev_surf.get_height() // 2))
 	reset_txt_rect = reset_txt.get_rect(center=(reset_surf.get_width() // 2, reset_surf.get_height() // 2))
 	quit_txt_rect = quit_txt.get_rect(center=(quit_surf.get_width() // 2, quit_surf.get_height() // 2))
 	menu_txt_rect = menu_txt.get_rect(center=(menu_surf.get_width() // 2, menu_surf.get_height() // 2))
+	caps_txt_top_rect = caps_txt_top.get_rect(center=(caps_surf.get_width()//2, caps_surf.get_height()//6))
+	caps_txt_rteam_rect = caps_txt_rteam.get_rect(center=(caps_surf.get_width()//4, caps_surf.get_height()//2))
+	caps_txt_bteam_rect = caps_txt_bteam.get_rect(center=(3*(caps_surf.get_width()//4), caps_surf.get_height()//2))
+
+	# Rectangle used for determining if menu button is clicked on (discovered this way after other buttons were done...)
 	menu_btn_rect = py.Rect(menu_pos, BTN_SZE)
 
 	if bot:
@@ -94,6 +114,12 @@ def main(bot):
 
 		if winner:
 			game_won(winner)
+
+		caps_txt_red = scr_font.render(f"{game.board.red_caps}", True, RED)
+		caps_txt_blk = scr_font.render(f"{game.board.blk_caps}", True, BLACK)
+
+		caps_txt_red_rect = caps_txt_red.get_rect(center=(caps_surf.get_width() // 4, caps_surf.get_height() - caps_surf.get_height()//4))
+		caps_txt_blk_rect = caps_txt_blk.get_rect(center=(3 * (caps_surf.get_width() // 4), caps_surf.get_height() - caps_surf.get_height()//4))
 
 		# Event handler
 		for event in py.event.get():
@@ -135,20 +161,30 @@ def main(bot):
 					welcome()
 				py.time.delay(75)
 
+		# draw rectangles of respective size for each button on their surface and color them red
 		py.draw.rect(rev_surf, RED, ((0, 0), BTN_SZE))
 		py.draw.rect(reset_surf, RED, ((0, 0), BTN_SZE))
 		py.draw.rect(quit_surf, RED, ((0, 0), BTN_SZE))
 		py.draw.rect(menu_surf, RED, ((0, 0), BTN_SZE))
+		py.draw.rect(caps_surf, CREAM, ((0, 0), disp_sze))
 
+		# blit the appropriate text on the correct surf at each of the drawn rectangles
 		rev_surf.blit(rev_txt, rev_txt_rect)
 		reset_surf.blit(reset_txt, reset_txt_rect)
 		quit_surf.blit(quit_txt, quit_txt_rect)
 		menu_surf.blit(menu_txt, menu_txt_rect)
+		caps_surf.blit(caps_txt_top, caps_txt_top_rect)
+		caps_surf.blit(caps_txt_rteam, caps_txt_rteam_rect)
+		caps_surf.blit(caps_txt_bteam, caps_txt_bteam_rect)
+		caps_surf.blit(caps_txt_red, caps_txt_red_rect)
+		caps_surf.blit(caps_txt_blk, caps_txt_blk_rect)
 
+		# blit each of the surfaces onto the window at the correct positions
 		WINDOW.blit(rev_surf, rev_pos)
 		WINDOW.blit(reset_surf, reset_pos)
 		WINDOW.blit(quit_surf, quit_pos)
 		WINDOW.blit(menu_surf, menu_pos)
+		WINDOW.blit(caps_surf, caps_pos)
 
 		game.update()
 
@@ -157,6 +193,7 @@ def main(bot):
 		py.display.update()
 	py.quit()
 	sys.exit()
+
 
 # Main menu/welcome screen. Allows selection of 1 or 2 players and calls main() with bot arg based on button clicked
 def welcome():
@@ -169,7 +206,7 @@ def welcome():
 	banner_sze = (WINDOW_SIZE[0] - WINDOW_SIZE[0] // 14, (WINDOW_SIZE[1] - 2 * (WINDOW_SIZE[1] // 3)))
 
 	banner_font = py.font.Font(None, 84)
-	banner_font.italic = True
+	banner_font.italic = banner_font.bold = True
 
 	wbtn_font = py.font.Font(None, 36)
 	wbtn_font.underline = True
@@ -179,7 +216,7 @@ def welcome():
 	two_surf = py.Surface(wbtn_sze)
 	quit_surf = py.Surface(BTN_SZE)
 
-	banner_txt = banner_font.render('Checkers Game For Cool People', True, REDB)
+	banner_txt = banner_font.render('Checkers Game For Cool People', True, CREAM)
 	sngl_txt = wbtn_font.render('1 Player', True, (255, 255, 255))
 	two_txt = wbtn_font.render('2 Player', True, (255, 255, 255))
 	quit_txt = BTN_FONT.render('Quit', True, (255, 255, 255))
