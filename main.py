@@ -2,7 +2,7 @@ import sys
 import pygame as py
 import pygame.mouse
 from game.constants import (BOARD_WIDTH, HEIGHT, RED, BLACK, SQUARE_SIZE, WINDOW_SIZE,
-							BOARD_POS, X_OFFSET, REDB, BLACKB, WOOD, CREAM)
+							BOARD_POS, X_OFFSET, REDB, BLACKB, WOOD, CREAM, RPI)
 from game.game import Game
 from game.bot import Bot
 
@@ -13,12 +13,11 @@ py.font.init()
 FPS = 60
 
 # Create window according to dimensions set by WIDTH and HEIGHT
-###########################################################
-####              CHANGE FOR RPI HERE                  ####
-###########################################################
-#WINDOW = py.display.set_mode((0, 0), py.FULLSCREEN)  # fullscreen window for rPi
-#py.mouse.set_visible(False)
-WINDOW = py.display.set_mode(WINDOW_SIZE)
+if RPI:
+	WINDOW = py.display.set_mode((0, 0), py.FULLSCREEN)  # fullscreen window for rPi
+	py.mouse.set_visible(False)  # make cursor invis since touchscreen being used
+else:
+	WINDOW = py.display.set_mode(WINDOW_SIZE)
 
 # Surface which will be blit onto window for the board to drawn on
 BOARD_SURF = py.Surface((BOARD_WIDTH, HEIGHT))
@@ -33,7 +32,7 @@ BTN_FONT = py.font.Font(None, 22)
 BTN_FONT.underline = True
 
 # Set window caption
-py.display.set_caption("Checkers v1.10")
+py.display.set_caption("Checkers v1.20")
 
 # Bot constants for color the bot plays and recursion depth/difficulty
 BOT_COLOR = BLACK

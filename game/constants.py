@@ -5,12 +5,15 @@ BOARD_WIDTH, HEIGHT = 600, 600  # Board size
 ROWS, COLS = 8, 8  # Checkers board is 8x8 grid
 SQUARE_SIZE = BOARD_WIDTH // COLS  # Size of individual cells on board
 
+# Boolean controlling window size and other changes needed when running on the rPi/Potato
+RPI = False
+
 ## WINDOW DIMENSIONS ##
-###########################################################
-####              CHANGE FOR RPI HERE                  ####
-###########################################################
-#WINDOW_WIDTH = 1024  # Window width used when ran in fullscreen on rPi
-WINDOW_WIDTH = BOARD_WIDTH + 400  # Window width based on board width plus side bar padding
+if RPI:
+	WINDOW_WIDTH = 1024  # Window width used when ran in fullscreen on rPi
+else:
+	WINDOW_WIDTH = BOARD_WIDTH + 400  # Window width based on board width plus side bar padding
+
 WINDOW_SIZE = (WINDOW_WIDTH, HEIGHT)  # tuple of width, height of window
 
 BOARD_POS = (WINDOW_WIDTH // 2 - BOARD_WIDTH // 2, 0)  # Pos to draw the board based on window width and board width

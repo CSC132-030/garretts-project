@@ -329,18 +329,20 @@ class Board:
         self.get_all_pieces()  # get all pieces on the curr board
         red_pos_score, blk_pos_score = self.get_pos_score()  # get pos score based on curr board
 
+        win = self.win_game()
+
         # If black or red has captured more than 11 pieces, the game has been won
-        if self.blk_caps > 11 or self.red_caps > 11:
+        if win is not False:
             # Set win var to 1000 based on which color has captured all pieces
-            if self.blk_caps > 11:
-                blk_win = 1000
-            elif self.red_caps > 11:
-                red_win = 1000
+            if win == BLACK:
+                blk_win += 1000
+            else:
+                red_win += 1000
 
         # Calc score of board state by summing the diff between black caps and red caps (multiplied by the weight),
         # the diff of ea colors kings (times weight), diff of pos score, and if a board results in a win: add or
         # subtract 10000 to score based on who would win that board in order to heavily incentivize winning the game
-        score = 6*(self.blk_caps - self.red_caps) + 8*(self.blk_kings - self.red_kings) + (blk_pos_score - red_pos_score) + 1000*(blk_win - red_win)
+        score = 10*(self.blk_caps - self.red_caps) + 7*(self.blk_kings - self.red_kings) + (blk_pos_score - red_pos_score) + 1000*(blk_win - red_win)
         return score
 
     # update a boards list of pieces on the board for each color
