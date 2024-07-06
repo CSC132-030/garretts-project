@@ -13,6 +13,11 @@ py.font.init()
 FPS = 60
 
 # Create window according to dimensions set by WIDTH and HEIGHT
+###########################################################
+####              CHANGE FOR RPI HERE                  ####
+###########################################################
+#WINDOW = py.display.set_mode((0, 0), py.FULLSCREEN)  # fullscreen window for rPi
+#py.mouse.set_visible(False)
 WINDOW = py.display.set_mode(WINDOW_SIZE)
 
 # Surface which will be blit onto window for the board to drawn on
@@ -133,8 +138,6 @@ def main(bot):
 		for event in py.event.get():
 			if event.type == py.QUIT:
 				run = False
-
-			# TODO: Change for touchscreen after testing, ie py.FINGERDOWN/FINGERUP/FINGERMOTION (TEST WHICH)
 
 			# If mouse button is clicked down
 			if event.type == py.MOUSEBUTTONDOWN:

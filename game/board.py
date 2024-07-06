@@ -235,7 +235,8 @@ class Board:
             return BLACK
         elif self.red_caps > 11:
             return RED
-        return False
+        else:
+            return False
 
     # Partial eval of board state based on location of all pieces on the board relative to their home location
     def get_pos_score(self):
@@ -255,20 +256,20 @@ class Board:
 
         def add_mid(color):
             if color == RED:
-                self.red_mid += 1
+                self.red_mid += 2
             else:
-                self.blk_mid += 1
+                self.blk_mid += 2
 
         def add_far(color):
             if color == RED:
-                self.red_far += 1
+                self.red_far += 3
             else:
-                self.blk_far += 1
+                self.blk_far += 3
 
         # Dictionaries calling appropriate methods to update the count based on a piece's row position
-        red_row_dict = {0: add_far, 1: add_far, 2: add_far, 3: add_mid, 4: add_mid, 5: add_home, 6: add_home,
+        red_row_dict = {0: add_far, 1: add_far, 2: add_mid, 3: add_mid, 4: add_mid, 5: add_mid, 6: add_home,
                         7: add_home}
-        blk_row_dict = {0: add_home, 1: add_home, 2: add_home, 3: add_mid, 4: add_mid, 5: add_far, 6: add_far,
+        blk_row_dict = {0: add_home, 1: add_home, 2: add_mid, 3: add_mid, 4: add_mid, 5: add_mid, 6: add_far,
                         7: add_far}
 
         # get the length/number of pieces for each colors list of pieces
@@ -284,26 +285,30 @@ class Board:
 
         # For each piece of each color...
         for red_piece, blk_piece in itools.zip_longest(self.red_pieces, self.blk_pieces, fillvalue=dummy_piece):
-            # If the current red piece is in row 10, it is dummy piece so do not score its pos
-            if red_piece.row != 10:
+            # Score only valid pieces on the game board. Thus, if the current red piece is a dummy piece and its row val
+            # is 10 it should not be included in the pos score
+            if red_piece.row < 8:
                 # if red piece is a king...
                 if red_piece.king:
-                    # add to amount subtracted from score to discourage king just moving back and forth at end of board
-                    if red_piece.row < 2 or red_piece.row > 5:
-                        bad_king_red += 1
-                    # otherwise, increment the king piece's pos score
+                    # if king piece is in the middle 4 rows add to pos score, otherwise add no points to discourage king
+                    # pieces from moving back and forth at far end to max score
+                    if red_piece.row <= 1:
+                        pass
+                    # otherwise, it can add to the pos score
                     else:
                         red_row_dict[red_piece.row](RED)
                 # otherwise red piece is not a king, so score its pos normally
                 else:
                     red_row_dict[red_piece.row](RED)
 
-            # If the current blk piece is in row 10, it is dummy piece so do not score its pos
-            if blk_piece.row != 10:
-                # now do the same for the black piece...
+            # Only score valid pieces, if the current blk piece is in row 10, it is dummy piece so do not score its pos
+            if blk_piece.row < 8:
+                # check if curr black piece is a king...
                 if blk_piece.king:
-                    if blk_piece.row < 2 or blk_piece.row > 5:
-                        bad_king_blk += 1
+                    # if it is a king and is chilling at far end of board, don't increase the score
+                    if blk_piece.row >= 6:
+                        pass
+                    # otherwise, it's not being dumb and can add to pos score
                     else:
                         blk_row_dict[blk_piece.row](BLACK)
                 # otherwise blk piece is not a king, so score its pos normally
@@ -311,8 +316,8 @@ class Board:
                     blk_row_dict[blk_piece.row](BLACK)
 
         # calc total pos score of each color based on board state
-        red_pos_score = self.red_mid + 2*self.red_far - bad_king_red
-        blk_pos_score = self.blk_mid + 2*self.blk_far - bad_king_blk
+        red_pos_score = self.red_mid + self.red_far
+        blk_pos_score = self.blk_mid + self.blk_far
 
         # return those scores to caller
         return red_pos_score, blk_pos_score
@@ -326,16 +331,16 @@ class Board:
 
         # If black or red has captured more than 11 pieces, the game has been won
         if self.blk_caps > 11 or self.red_caps > 11:
-            # Set win var to 100 based on which color has captured all pieces
+            # Set win var to 1000 based on which color has captured all pieces
             if self.blk_caps > 11:
-                blk_win = 100
+                blk_win = 1000
             elif self.red_caps > 11:
-                red_win = 100
+                red_win = 1000
 
         # Calc score of board state by summing the diff between black caps and red caps (multiplied by the weight),
         # the diff of ea colors kings (times weight), diff of pos score, and if a board results in a win: add or
         # subtract 10000 to score based on who would win that board in order to heavily incentivize winning the game
-        score = 5*(self.blk_caps - self.red_caps) + 4*(self.blk_kings - self.red_kings) + 2*(blk_pos_score - red_pos_score) + 1000*(blk_win - red_win)
+        score = 6*(self.blk_caps - self.red_caps) + 8*(self.blk_kings - self.red_kings) + (blk_pos_score - red_pos_score) + 1000*(blk_win - red_win)
         return score
 
     # update a boards list of pieces on the board for each color

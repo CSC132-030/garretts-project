@@ -6,6 +6,10 @@ ROWS, COLS = 8, 8  # Checkers board is 8x8 grid
 SQUARE_SIZE = BOARD_WIDTH // COLS  # Size of individual cells on board
 
 ## WINDOW DIMENSIONS ##
+###########################################################
+####              CHANGE FOR RPI HERE                  ####
+###########################################################
+#WINDOW_WIDTH = 1024  # Window width used when ran in fullscreen on rPi
 WINDOW_WIDTH = BOARD_WIDTH + 400  # Window width based on board width plus side bar padding
 WINDOW_SIZE = (WINDOW_WIDTH, HEIGHT)  # tuple of width, height of window
 
@@ -27,8 +31,8 @@ BLACKB = (0, 0, 0)  # Outline of bot's pieces
 GREEN = (82, 196, 16)  # Color indicating valid spaces a piece can be moved
 
 piece_diameter = (SQUARE_SIZE//2 - PADDING)*2  # Diameter of one game piece
-x_scale = piece_diameter * 2/3  # Set width of crown to 2/3 the diameter of a piece
-y_scale = x_scale*(256/445)  # Calculate height while maintaining images original aspect ratio
+x_scale = 2*piece_diameter//3  # Set width of crown to 2/3 the diameter of a piece
+y_scale = 256*x_scale//445  # Calculate height while maintaining images original aspect ratio
 
 # crown image scaled to fit on a piece to indicate it is a king
 CROWN = py.transform.scale(py.image.load('assets/crown.png'), (x_scale, y_scale))
