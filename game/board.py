@@ -3,6 +3,7 @@ import itertools as itools
 from .constants import WOOD, CREAM, BLACK, RED, ROWS, COLS, SQUARE_SIZE
 from .piece import Piece
 
+
 # Board class used to represent the board the game is played on
 class Board:
 

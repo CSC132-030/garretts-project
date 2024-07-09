@@ -1,6 +1,7 @@
 from .constants import RED, REDB, BLACKB,  SQUARE_SIZE, CROWN, PADDING, OUTLINE
 import pygame as py
 
+
 # Piece class used to the pieces being used to play the game
 class Piece:
     # Class constants

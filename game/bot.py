@@ -1,5 +1,6 @@
 from bot.algorithm import *
 
+
 # class representing the bot player for single player games
 class Bot:
 	def __init__(self, color, game, depth, maximize):
